@@ -12,18 +12,21 @@ def create_record():
     required_fields = ["clerk_id", "product_id",
         "items_received", "items_in_stock",
         "buying_price","selling_price",
-        "store_id","admin_id"]
+        "store_id", "admin_id", "supplier_id"]
 
     for field in required_fields:
         if field not in data:
             return jsonify({"error": f"{field} is required"}), 400
 
+ 
+
     new_record = Record(clerk_id=data["clerk_id"],
         product_id=data["product_id"],
+        supplier_id=data["supplier_id"],
         items_received=data["items_received"], items_in_stock=data["items_in_stock"],
         items_spoilt=data.get("items_spoilt", 0),
         buying_price=data["buying_price"], selling_price=data["selling_price"],
-        store_id=data["store_id"], admin_id=data["admin_id"], supplier_id=data.get("supplier_id", None))
+        store_id=data["store_id"], admin_id=data["admin_id"])
 
     db.session.add(new_record)
     db.session.commit()
@@ -38,7 +41,11 @@ def get_records():
 
     return jsonify([
         {"record_id": record.record_id, "clerk_id": record.clerk_id,
-            "product_id": record.product_id, "items_received": record.items_received,
+            "product_id": record.product_id,
+            "product_name": record.product.name if record.product else None,
+            "supplier_id": record.supplier_id,
+            "supplier_name": record.supplier.name if record.supplier else None,
+            "items_received": record.items_received,
             "items_in_stock": record.items_in_stock,"items_spoilt": record.items_spoilt,
             "buying_price": float(record.buying_price),
             "selling_price": float(record.selling_price),
@@ -57,6 +64,9 @@ def get_record(record_id):
 
     return jsonify({"record_id": record.record_id,
         "clerk_id": record.clerk_id, "product_id": record.product_id,
+        "product_name": record.product.name if record.product else None,
+        "supplier_id": record.supplier_id,
+        "supplier_name": record.supplier.name if record.supplier else None,
         "items_received": record.items_received, "items_in_stock": record.items_in_stock,
         "items_spoilt": record.items_spoilt, "buying_price": float(record.buying_price),
         "selling_price": float(record.selling_price), "payment_status": record.payment_status,
