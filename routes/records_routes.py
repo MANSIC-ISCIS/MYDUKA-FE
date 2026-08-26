@@ -4,6 +4,7 @@ from models.clerk import Clerk
 from models.product import Product
 from models.records import Record
 from models.store import Store
+from models.store_admin import StoreAdmin
 from models.suppliers import Supplier
 
 records_bp = Blueprint("records_bp", __name__)
@@ -113,6 +114,24 @@ def update_record(record_id):
     if not record:
         return jsonify({"error": "Record not found"}), 404
     data = request.get_json(silent=True) or {}
+    if "store_name" in data:
+        store = Store.query.filter_by(st_name=data["store_name"]).first()
+        if not store:
+            return jsonify({"error": "Choose a valid store or branch."}), 400
+        record.store_id = store.store_id
+        store_admin = StoreAdmin.query.filter_by(store_id=store.store_id, is_active=True).first()
+        if store_admin:
+            record.admin_id = store_admin.admin_id
+    if "supplier_name" in data:
+        supplier_name = data["supplier_name"].strip()
+        if not supplier_name:
+            return jsonify({"error": "Supplier name cannot be blank."}), 400
+        supplier = Supplier.query.filter(Supplier.name.ilike(supplier_name)).first()
+        if not supplier:
+            supplier = Supplier(name=supplier_name)
+            db.session.add(supplier)
+            db.session.flush()
+        record.supplier_id = supplier.supplier_id
     for field in ("items_received", "items_in_stock", "items_spoilt", "buying_price", "selling_price", "payment_status"):
         if field in data:
             setattr(record, field, data[field])
