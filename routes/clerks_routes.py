@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from extensions import db
 from models.clerk import Clerk
 from models.records import Record
-from datetime import datetime, time
+from datetime import datetime
 from sqlalchemy import func
 
 clerk_bp = Blueprint("clerk", __name__)
@@ -42,22 +42,21 @@ def get_clerks():
 
 @clerk_bp.route("/clerk/dashboard", methods=["GET"])
 def clerk_dashboard():
-    today = datetime.combine(datetime.today().date(), time.min)
-    today_records = Record.query.filter(Record.created_at >= today)
+    records = Record.query
 
-    received = today_records.with_entities(
+    received = records.with_entities(
         func.coalesce(func.sum(Record.items_received), 0)
     ).scalar()
 
-    stock = today_records.with_entities(
+    stock = records.with_entities(
         func.coalesce(func.sum(Record.items_in_stock), 0)
     ).scalar()
 
-    spoilt = today_records.with_entities(
+    spoilt = records.with_entities(
         func.coalesce(func.sum(Record.items_spoilt), 0)
     ).scalar()
 
-    unpaid = today_records.filter_by(payment_status="unpaid").count()
+    unpaid = records.filter_by(payment_status="unpaid").count()
 
     return jsonify({"received": received,
         "stock": stock,
