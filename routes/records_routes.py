@@ -147,3 +147,5 @@ def delete_record(record_id):
     db.session.delete(record)
     db.session.commit()
     return jsonify({"message": "Record deleted successfully"}), 200
+
+

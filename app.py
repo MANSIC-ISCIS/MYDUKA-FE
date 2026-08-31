@@ -28,7 +28,10 @@ migrate.init_app(app, db)
 with app.app_context():
     db.create_all()
 
-CORS(app, origins="*", supports_credentials=True)
+CORS(
+    app,
+    resources={r"/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}}
+)
 
 
 # =========================================================
