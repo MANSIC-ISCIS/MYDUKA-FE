@@ -19,6 +19,7 @@ import EditRecord from "./pages/clerks/editrecord";
 import AdminDashboard from "./pages/storeadmin/clerk";
 import SupplyRequests from "./pages/storeadmin/supply_req";
 import Chart from "./pages/charts/barchart2";
+import MpesaPayment from "./pages/merchants/mpesa";
 
 
 function App() {
@@ -67,6 +68,7 @@ function App() {
             <Route path="/merchant/admin" element={<MerchantAdmin />} />
             <Route path="/stores" element={<MerchantStores />} />
             <Route path="/merchant/payments" element={<MerchantPayment />} />
+            <Route path="/merchant/mpesa" element={<MpesaPayment />} />
       
                {/* Clerk Dashboard */}
             
