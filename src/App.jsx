@@ -27,8 +27,6 @@ function App() {
   
         <Routes>
 
-            {/* PUBLIC */}
-
             <Route
                 path="/"
                 element={<Home />}
