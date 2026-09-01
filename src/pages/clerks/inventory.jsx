@@ -1,13 +1,136 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../../config";
+import Sidebar from "../../components/sidebar";
 
 function Inventory() {
-  const navigate = useNavigate(); const [records, setRecords] = useState([]); const [error, setError] = useState("");
-  const load = async () => { try { const response = await fetch(`${API_URL}/records`); const data = await response.json(); if (!response.ok) throw new Error(data.error); setRecords(data); setError(""); } catch (loadError) { setError(loadError.message || "Unable to load inventory."); } };
-  useEffect(() => { load(); const id = setInterval(load, 30000); return () => clearInterval(id); }, []);
-  const remove = async (record) => { if (!window.confirm(`Delete the ${record.product_name} record?`)) return; try { const response = await fetch(`${API_URL}/records/${record.record_id}`, { method: "DELETE" }); const data = await response.json(); if (!response.ok) throw new Error(data.error); setRecords(records.filter((item) => item.record_id !== record.record_id)); } catch (deleteError) { setError(deleteError.message || "Unable to delete record."); } };
-  return <main style={page}><header style={header}><div><button onClick={() => navigate("/clerk/dashboard")}>← Dashboard</button><h1 style={{ fontSize: "2.4rem", marginBottom: 4 }}>Inventory</h1><p>Live stock records across all branches.</p></div><button style={primary} onClick={() => navigate("/clerk/records")}>+ Record item</button></header>{error && <p role="alert">{error}</p>}{records.length === 0 ? <p>No inventory records yet.</p> : <section style={grid}>{records.map((record) => <article key={record.record_id} style={card}><div style={{ flex: 1 }}><span style={branchBadge}>{record.store_name}</span><h2 style={{ fontSize: "1.45rem", margin: "12px 0 4px" }}>{record.product_name}</h2><p style={{ color: "#475569" }}>Supplied by {record.supplier_name}</p><div style={stockRow}><span><b>{record.items_in_stock}</b><small> in stock</small></span><span>{record.items_received} received</span><span>{record.items_spoilt} spoilt</span></div><p><b>KSh {record.selling_price}</b> selling · KSh {record.buying_price} buying · <em>{record.payment_status}</em></p></div><div style={actions}><button onClick={() => navigate(`/clerk/edit/${record.record_id}`)}>Edit</button><button style={danger} onClick={() => remove(record)}>Delete</button></div></article>)}</section>}</main>;
+  const navigate = useNavigate();
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    const loadInventory = async () => {
+      try {
+        const response = await fetch(`${API_URL}/records`);
+
+        if (!response.ok) throw new Error("Unable to load inventory.");
+
+        const data = await response.json();
+
+        if (active) {
+          setRecords(Array.isArray(data) ? data : []);
+          setError("");
+        }
+      } catch (loadError) {
+        if (active) setError(loadError.message);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    loadInventory();
+
+    const intervalId = window.setInterval(loadInventory, 30000);
+
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
+  if (loading) return <p>Loading inventory...</p>;
+
+  return (
+    <div className="admin-dashboard">
+      <Sidebar role="clerk" />
+
+      <div style={{ padding: "24px" }}>
+      <button
+        onClick={() => navigate("/clerk/dashboard")}
+        style={backButtonStyle}
+      >
+        Back to Dashboard
+      </button>
+
+      <h1>Inventory</h1>
+      <p>Live inventory records refresh automatically every 30 seconds.</p>
+
+      {error && <p role="alert">{error}</p>}
+
+      {!error && records.length === 0 ? (
+        <p>No inventory records available.</p>
+      ) : (
+        records.map((record) => (
+          <article key={record.record_id} style={cardStyle}>
+            <div>
+              <h2>{record.product_name || `Product #${record.product_id}`}</h2>
+              <p>Product ID: {record.product_id}</p>
+              <p>
+                Supplier:{" "}
+                {record.supplier_name || `Supplier #${record.supplier_id}`}
+              </p>
+              <p>Supplier ID: {record.supplier_id}</p>
+              <p>
+                Received: {record.items_received} · In stock:{" "}
+                {record.items_in_stock} · Spoilt: {record.items_spoilt}
+              </p>
+              <p>
+                Buying price: KSh {record.buying_price} · Selling price: KSh{" "}
+                {record.selling_price}
+              </p>
+              <p>Payment status: {record.payment_status}</p>
+              <small>
+                Recorded:{" "}
+                {record.created_at
+                  ? new Date(record.created_at).toLocaleString()
+                  : "Not available"}
+              </small>
+            </div>
+
+            <button
+              style={editButton}
+              onClick={() => navigate(`/clerk/edit/${record.record_id}`)}
+            >
+              Edit
+            </button>
+          </article>
+        ))
+      )}
+     </div>
+    </div>
+  );
 }
-const page = { maxWidth: "1180px", margin: "0 auto", padding: "36px 24px" }; const header = { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 28, padding: "24px", borderRadius: 18, background: "linear-gradient(135deg, #d0f7d0, #F8FAFC)" }; const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(370px, 1fr))", gap: 20 }; const card = { border: "1px solid #DBEAFE", borderRadius: 18, padding: 24, display: "flex", justifyContent: "space-between", gap: 20, background: "#FFFFFF", boxShadow: "0 10px 24px rgba(30, 64, 175, 0.08)" }; const actions = { display: "flex", flexDirection: "column", gap: 10, justifyContent: "center" }; const stockRow = { display: "flex", gap: 16, alignItems: "center", padding: "12px", borderRadius: 10, background: "#e7f3e7" }; const branchBadge = { display: "inline-block", background: "#DBEAFE", color: "#169126", padding: "5px 9px", borderRadius:20, fontSize: "0.8rem", fontWeight: 700 }; const primary = { background: "#35d362", color: "#fff", border: 0, borderRadius: 8, padding: "11px 16px", fontWeight: 700 }; const danger = { background: "#B91C1C", color: "#fff", border: 0, borderRadius: 6, padding: "8px" };
+
+const cardStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  border: "1px solid #E5E7EB",
+  borderRadius: "10px",
+  padding: "16px",
+  marginBottom: "16px",
+};
+
+const backButtonStyle = {
+  background: "#6B7280",
+  color: "white",
+  border: "none",
+  padding: "10px 16px",
+  borderRadius: "8px",
+  cursor: "pointer",
+  marginBottom: "20px",
+};
+
+const editButton = {
+  background: "#2563EB",
+  color: "white",
+  border: "none",
+  padding: "10px 16px",
+  borderRadius: "8px",
+  cursor: "pointer",
+};
+
 export default Inventory;

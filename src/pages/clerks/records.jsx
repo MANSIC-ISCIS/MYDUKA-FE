@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../../config";
+import Sidebar from "../../components/sidebar";
 
 // =====================================================
 // INITIAL FORM
@@ -137,7 +138,10 @@ function Records() {
   // =====================================================
 
   return (
-    <main style={pageStyle}>
+    <div className="admin-dashboard">
+      <Sidebar role="clerk" />
+
+     <main style={pageStyle}>
 
       {/* BACK BUTTON */}
       <button
@@ -331,7 +335,8 @@ function Records() {
         </button>
 
       </form>
-    </main>
+     </main>
+    </div>
   );
 }
 
@@ -478,7 +483,7 @@ const formStyle = {
 
   background: "#FFFFFF",
 
-  border: "1px solid #E2E8F0",
+  border: "1px solid #e3f0e2",
 
   borderRadius: "16px",
 
@@ -504,7 +509,7 @@ const inputStyle = {
 
   padding: "12px 14px",
 
-  border: "1px solid #CBD5E1",
+  border: "1px solid #cbe1cc",
 
   borderRadius: "8px",
 
@@ -518,7 +523,7 @@ const inputStyle = {
 const primaryButton = {
   gridColumn: "1 / -1",
 
-  background: "#2563EB",
+  background: "#14a02c",
 
   color: "#FFFFFF",
 
@@ -568,7 +573,7 @@ const errorStyle = {
 };
 
 const loadingStyle = {
-  color: "#1D4ED8",
+  color: "#09f473",
 
   background: "#EFF6FF",
 
