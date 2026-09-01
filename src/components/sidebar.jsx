@@ -10,6 +10,7 @@ function Sidebar({ role }) {
       { label: "Stores", path: "/stores", icon: "▣" },
       { label: "Administrators", path: "/merchant/admin", icon: "♙" },
       { label: "Payments", path: "/merchant/payments", icon: "₵" },
+      { label: "M-Pesa Payment", path: "/merchant/mpesa", icon: "₵" },
     ],
 
     admin: [
@@ -25,7 +26,7 @@ function Sidebar({ role }) {
     ],
 
     clerk: [
-      { label: "Dashboard", path: "/clerk", icon: "⌂" },
+      { label: "Dashboard", path: "/clerk/dashboard", icon: "⌂" },
       { label: "Inventory", path: "/clerk/inventory", icon: "▣" },
       { label: "Record Inventory", path: "/clerk/records", icon: "+" },
       { label: "Supply Request", path: "/clerk/supplyreq", icon: "↗" },
