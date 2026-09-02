@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/auth/home";
 import Login from "./pages/auth/login";
 import RegisterMerchant from "./pages/auth/regMerchant";
+import RegisterClerk from "./pages/auth/regClerk";
 import SalesChart from "./pages/charts/barchart";
 import ProductPieChart from "./pages/charts/piechart";
 import { StrictMode } from "react";
@@ -40,6 +41,11 @@ function App() {
             <Route
                 path="/register-merchant"
                 element={<RegisterMerchant />}
+            />
+
+            <Route
+                path="/register-clerk"
+                element={<RegisterClerk />}
             />
 
             <Route
